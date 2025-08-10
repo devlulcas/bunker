@@ -16,6 +16,28 @@ export const session = sqliteTable('session', {
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
 });
 
-export type Session = typeof session.$inferSelect;
+export const guestLink = sqliteTable('guest_link', {
+	id: text('id').primaryKey(),
+	username: text('username').notNull(),
+	allowedPages: text('allowed_pages').notNull(), // JSON array of allowed page paths
+	durationHours: integer('duration_hours').notNull(),
+	createdAt: integer('created_at', { mode: 'timestamp' }).notNull().defaultNow(),
+	createdBy: text('created_by')
+		.notNull()
+		.references(() => user.id)
+});
 
+export const guestSession = sqliteTable('guest_session', {
+	id: text('id').primaryKey(),
+	guestLinkId: text('guest_link_id')
+		.notNull()
+		.references(() => guestLink.id),
+	token: text('token').notNull().unique(),
+	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+	createdAt: integer('created_at', { mode: 'timestamp' }).notNull().defaultNow()
+});
+
+export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
+export type GuestLink = typeof guestLink.$inferSelect;
+export type GuestSession = typeof guestSession.$inferSelect;

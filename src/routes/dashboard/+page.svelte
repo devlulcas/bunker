@@ -1,5 +1,84 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
+	import Button from '$lib/components/button.svelte';
+	import Checkbox from '$lib/components/checkbox.svelte';
+	import ErrorWarning from '$lib/components/error-warning.svelte';
+	import GuestLinkTable from '$lib/components/guest-link-table.svelte';
+	import Input from '$lib/components/input.svelte';
+	import { createGuestLinkAction, getGuestLinksAction } from '$lib/remote/guest/guest-link.remote';
+	import IconAt from '@lucide/svelte/icons/at-sign';
+	import IconClock from '@lucide/svelte/icons/clock';
+	import IconLoader from '@lucide/svelte/icons/loader';
 
-	let { data }: PageProps = $props();
+	const availablePages = ['/dashboard/guest/todoist'];
+
+	function generateGuestLinkUrl(id: string) {
+		return `${window.location.origin}/guest/${id}`;
+	}
+
+	function copyToClipboard(text: string) {
+		navigator.clipboard.writeText(text);
+	}
 </script>
+
+<div class="container mx-auto max-w-6xl p-6">
+	<h1 class="mb-8 text-3xl font-bold">Painel de controle</h1>
+
+	<form
+		{...createGuestLinkAction}
+		class="mb-8 rounded-4xl bg-card p-6 text-card-foreground shadow-md"
+	>
+		<div class="rounded-3xl border p-6">
+			<h3 class="mb-4 text-lg font-medium">Criar novo link de convidado</h3>
+
+			<div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+				<div>
+					<label for="username" class="mb-2 block text-sm font-medium"> Username * </label>
+					<Input leftIcon={IconAt} name="username" type="text" placeholder="username" required />
+				</div>
+
+				<div>
+					<label for="duration" class="mb-2 block text-sm font-medium"> Duração (horas) * </label>
+					<Input
+						leftIcon={IconClock}
+						name="duration"
+						type="number"
+						placeholder="duração"
+						required
+					/>
+				</div>
+			</div>
+
+			<fieldset class="mb-4">
+				<legend class="mb-2 block text-sm font-medium">Páginas permitidas *</legend>
+				<div class="space-y-2">
+					{#each availablePages as page}
+						<Checkbox name="pages" value={page} label={page} id={page} />
+					{/each}
+				</div>
+			</fieldset>
+
+			<Button type="submit" class="mt-8 w-full">Criar link de convidado</Button>
+		</div>
+	</form>
+
+	<div class="rounded-3xl bg-card p-6 text-card-foreground shadow-md">
+		<h3 class="mb-4 text-lg font-medium">Links de convidado existentes</h3>
+
+		{#await getGuestLinksAction()}
+			<p class="flex items-center justify-center gap-2 py-8 text-center">
+				<IconLoader class="h-4 w-4 animate-spin" />
+				Carregando links de convidado...
+			</p>
+		{:then result}
+			{#if result.error}
+				<ErrorWarning message={result.error} />
+			{:else}
+				{@const links = result.links ?? []}
+
+				<div class="overflow-x-auto rounded-lg border">
+					<GuestLinkTable {links} />
+				</div>
+			{/if}
+		{/await}
+	</div>
+</div>
