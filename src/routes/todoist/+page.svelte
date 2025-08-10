@@ -64,7 +64,7 @@
 			<section>
 				<h2 class="mb-4 flex items-center text-xl font-semibold text-gray-800">
 					<span class="mr-2 h-3 w-3 rounded-full bg-green-500"></span>
-					Tasks ({data.tasks.all.length})
+					{data.tasks.all.length} tarefas no total
 				</h2>
 				{#if data.tasks.all.length > 0}
 					<ul class="flex flex-col gap-4">

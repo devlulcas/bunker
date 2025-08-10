@@ -35,7 +35,7 @@
 			{#if task.completedAt}
 				<span class="flex items-center">
 					<IconCheck class="mr-1 size-4" />
-					Completed {formatDate(task.completedAt)}
+					Completado em {formatDate(task.completedAt)}
 				</span>
 			{/if}
 

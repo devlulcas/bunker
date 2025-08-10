@@ -45,7 +45,7 @@
 	const colorScale = scaleOrdinal<string, string>().range([
 		'#3b82f6', // Blue for All Tasks
 		'#f59e0b', // Amber for Active
-		'#10b981' // Emerald for Completed
+		'var(--brand-dark)' // Emerald for Completed
 	]);
 
 	// Sankey generator
@@ -88,14 +88,19 @@
 					stroke-opacity="0.7"
 					stroke-width={Math.max(3, link.width || 1)}
 					class="link"
+					class:hidden={link.value === 0}
 					style="transform: translateY(5px)"
 					stroke-linecap="round"
 				/>
 			{/each}
 
 			<!-- Nodes with enhanced styling -->
-			{#each sankeyData.nodes as node, index}
-				<g class="node group" transform="translate({node.x0 || 0},{node.y0 || 0})">
+			{#each sankeyData.nodes as node}
+				<g
+					class="node group"
+					class:hidden={node.value === 0}
+					transform="translate({node.x0 || 0},{node.y0 || 0})"
+				>
 					<!-- Node background with shadow effect -->
 					<rect
 						height={(node.y1 || 0) - (node.y0 || 0) + 10}
