@@ -41,18 +41,18 @@
 	const height = 600;
 	const margin = { top: 0, right: 0, bottom: 0, left: 0 };
 
-	// Color scale for nodes
+	// Enhanced color scale with better colors
 	const colorScale = scaleOrdinal<string, string>().range([
-		'var(--chart-4)',
-		'var(--chart-2)',
-		'var(--chart-5)'
+		'#3b82f6', // Blue for All Tasks
+		'#f59e0b', // Amber for Active
+		'#10b981' // Emerald for Completed
 	]);
 
 	// Sankey generator
 	let sankeyGenerator = $derived(
 		sankey<NodeData, LinkData>()
-			.nodeWidth(15)
-			.nodePadding(10)
+			.nodeWidth(25)
+			.nodePadding(20)
 			.extent([
 				[margin.left, margin.top],
 				[width - margin.right, height - margin.bottom]
@@ -78,61 +78,105 @@
 
 <div class="relative w-full" bind:clientWidth={width}>
 	{#if sankeyData}
-		<svg {width} {height}>
-			<!-- Links -->
+		<svg {width} height={height + 40}>
+			<!-- Links with enhanced styling -->
 			{#each sankeyData.links as link}
 				<path
 					d={linkGenerator(link)}
 					fill="none"
 					stroke={colorScale(getNodeName(link.source))}
-					stroke-opacity="0.4"
-					stroke-width={Math.max(1, link.width || 1)}
+					stroke-opacity="0.7"
+					stroke-width={Math.max(3, link.width || 1)}
 					class="link"
+					style="transform: translateY(5px)"
+					stroke-linecap="round"
 				/>
 			{/each}
 
-			<!-- Nodes -->
-			{#each sankeyData.nodes as node}
-				<g class="node" transform="translate({node.x0 || 0},{node.y0 || 0})">
+			<!-- Nodes with enhanced styling -->
+			{#each sankeyData.nodes as node, index}
+				<g class="node group" transform="translate({node.x0 || 0},{node.y0 || 0})">
+					<!-- Node background with shadow effect -->
 					<rect
-						height={(node.y1 || 0) - (node.y0 || 0)}
+						height={(node.y1 || 0) - (node.y0 || 0) + 10}
 						width={(node.x1 || 0) - (node.x0 || 0)}
 						fill={colorScale(node.name)}
 						class="node-rect"
+						rx="8"
+						ry="8"
 					>
 						<title>{node.name}: {node.value}</title>
 					</rect>
 
+					<!-- Node text with better positioning and styling -->
 					<text
-						x={(node.x0 || 0) < width / 2 ? (node.x1 || 0) - (node.x0 || 0) + 6 : -6}
+						x={(node.x0 || 0) < width / 2 ? (node.x1 || 0) - (node.x0 || 0) + 8 : -8}
 						y={((node.y1 || 0) - (node.y0 || 0)) / 2}
 						dy="0.35em"
 						text-anchor={(node.x0 || 0) < width / 2 ? 'start' : 'end'}
-						class="fill-primary text-sm group-hover:fill-primary-foreground"
+						class="fill-white text-sm font-semibold drop-shadow-sm"
 					>
 						{node.name}
+					</text>
+
+					<!-- Value text below node name -->
+					<text
+						x={(node.x0 || 0) < width / 2 ? (node.x1 || 0) - (node.x0 || 0) + 8 : -8}
+						y={((node.y1 || 0) - (node.y0 || 0)) / 2 + 16}
+						dy="0.35em"
+						text-anchor={(node.x0 || 0) < width / 2 ? 'start' : 'end'}
+						class="fill-white/80 text-xs font-medium drop-shadow-sm"
+					>
+						{node.value} tarefas
 					</text>
 				</g>
 			{/each}
 		</svg>
+
+		<ul class="mt-6 flex justify-center gap-8">
+			{#each data.nodes as node}
+				<li class="flex items-center gap-1 text-lg font-medium">
+					<span
+						class="flex size-[3ch] shrink-0 items-center justify-center rounded leading-none font-bold text-white"
+						style="background-color: {colorScale(node.name)}"
+					>
+						{node.value}
+					</span>
+					<span class="leading-none text-muted-foreground lowercase">{node.name}</span>
+				</li>
+			{/each}
+		</ul>
 	{/if}
 </div>
 
 <style>
 	.link {
-		transition: stroke-opacity 200ms ease-in-out;
+		transition: stroke-opacity 0.2s ease-out;
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
 	}
 
 	.link:hover {
 		stroke-opacity: 0.8;
+		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
 	}
 
 	.node-rect {
-		transition: opacity 200ms ease-in-out;
-		opacity: 0.8;
+		transition:
+			transform 0.2s ease-out,
+			filter 0.2s ease-out;
+		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 	}
 
 	.node-rect:hover {
-		opacity: 1;
+		transform: translateY(-2px);
+		filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+	}
+
+	.node text {
+		transition: fill 0.15s ease-out;
+	}
+
+	.node:hover text {
+		fill: white;
 	}
 </style>
