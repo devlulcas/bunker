@@ -1,9 +1,18 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import ButtonToggle from '$lib/components/button-toggle.svelte';
 	import TaskItem from '$lib/components/task-item.svelte';
 	import TaskSankeyChart from '$lib/components/task-sankey-chart.svelte';
+	import { formatDate } from '$lib/helpers/formatting';
 	import IconSkull from '@lucide/svelte/icons/skull';
 
 	const { data } = $props();
+
+	function setWeekFilter(week: 'this' | 'last') {
+		const url = new URL(window.location.href);
+		url.searchParams.set('week', week);
+		goto(url.toString());
+	}
 </script>
 
 <svelte:head>
@@ -26,6 +35,30 @@
 			</div>
 		</div>
 	{:else if data.tasks}
+		<!-- Week Filter -->
+		<div class="mb-6">
+			<div class="flex items-center gap-4">
+				<div class="flex gap-2">
+					<ButtonToggle
+						label="Essa semana"
+						onClick={() => setWeekFilter('this')}
+						active={data.weekFilter === 'this'}
+					/>
+					<ButtonToggle
+						label="Última semana"
+						onClick={() => setWeekFilter('last')}
+						active={data.weekFilter === 'last'}
+					/>
+				</div>
+				{#if data.weekBoundaries}
+					<span class="text-sm text-gray-600">
+						{formatDate(data.weekBoundaries.start, 'short')} -
+						{formatDate(data.weekBoundaries.end, 'short')}
+					</span>
+				{/if}
+			</div>
+		</div>
+
 		<div class="space-y-6">
 			<!-- Active Tasks -->
 			<section>

@@ -1,8 +1,13 @@
 import { TODOIST_PROJECT_URL } from '$env/static/private';
-import { extractProjectId, filterOutPrivateLabels, getAllProjectTasks } from '$lib/server/todoist';
+import {
+	extractProjectId,
+	filterOutPrivateLabels,
+	getAllProjectTasks,
+	type WeekFilter
+} from '$lib/server/todoist';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ url }) => {
 	try {
 		const projectId = extractProjectId(TODOIST_PROJECT_URL);
 
@@ -10,7 +15,10 @@ export const load: PageServerLoad = async () => {
 			throw new Error('Invalid Todoist project URL');
 		}
 
-		const unfilteredTasks = await getAllProjectTasks(projectId);
+		// Get week filter from query parameter, default to 'this'
+		const weekFilter = (url.searchParams.get('week') as WeekFilter) || 'this';
+
+		const unfilteredTasks = await getAllProjectTasks(projectId, weekFilter);
 
 		const tasks = {
 			all: filterOutPrivateLabels(unfilteredTasks.all),
@@ -20,12 +28,16 @@ export const load: PageServerLoad = async () => {
 
 		return {
 			tasks,
+			weekFilter,
+			weekBoundaries: unfilteredTasks.weekBoundaries,
 			error: null
 		};
 	} catch (error) {
 		console.error('Error loading Todoist tasks:', error);
 		return {
 			tasks: null,
+			weekFilter: 'this',
+			weekBoundaries: null,
 			error: error instanceof Error ? error.message : 'Failed to fetch tasks'
 		};
 	}

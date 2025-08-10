@@ -55,6 +55,10 @@
 	--spacing: 0.25rem;
 
 	--scrollbar: 0 0% 48%;
+
+	--brand-dark: oklch(0.6793 0.2207 143.9249);
+	--brand-light: oklch(0.8708 0.27 144.7178);
+	--brand-400: oklch(0.8027 0.2621 143.7718);
 }
 
 .dark {

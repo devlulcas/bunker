@@ -1,10 +1,18 @@
-const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
-	day: '2-digit',
-	month: '2-digit',
-	year: 'numeric'
-});
+export function formatDate(dateString: string | Date, format: 'numeric' | 'short' = 'numeric') {
+	const dateOptions = {
+		numeric: {
+			day: '2-digit',
+			month: '2-digit',
+			year: 'numeric'
+		},
+		short: {
+			day: '2-digit',
+			month: 'long'
+		}
+	} as const;
 
-export function formatDate(dateString: string) {
+	const dateFormatter = new Intl.DateTimeFormat('pt-BR', dateOptions[format]);
+
 	return dateFormatter.format(new Date(dateString));
 }
 

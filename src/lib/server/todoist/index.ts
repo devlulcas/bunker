@@ -10,19 +10,56 @@ export function extractProjectId(url: string): string | null {
 	return projectId || null;
 }
 
-export async function getAllProjectTasks(projectId: string) {
+export type WeekFilter = 'this' | 'last';
+
+export function getWeekBoundaries(weekFilter: WeekFilter): { start: Date; end: Date } {
+	const now = new Date();
+	const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+	// Get the start of the current week (Monday)
+	const startOfCurrentWeek = new Date(now);
+	startOfCurrentWeek.setDate(now.getDate() - currentDay);
+	startOfCurrentWeek.setHours(0, 0, 0, 0);
+
+	// Get the end of the current week (Sunday)
+	const endOfCurrentWeek = new Date(startOfCurrentWeek);
+	endOfCurrentWeek.setDate(startOfCurrentWeek.getDate() - currentDay + 6);
+	endOfCurrentWeek.setHours(23, 59, 59, 999);
+
+	if (weekFilter === 'this') {
+		return {
+			start: startOfCurrentWeek,
+			end: endOfCurrentWeek
+		};
+	} else {
+		// Last week
+		const startOfLastWeek = new Date(startOfCurrentWeek);
+		startOfLastWeek.setDate(startOfCurrentWeek.getDate() - 7);
+
+		const endOfLastWeek = new Date(startOfCurrentWeek);
+		endOfLastWeek.setDate(startOfCurrentWeek.getDate() - 1);
+		endOfLastWeek.setHours(23, 59, 59, 999);
+
+		return {
+			start: startOfLastWeek,
+			end: endOfLastWeek
+		};
+	}
+}
+
+export async function getAllProjectTasks(projectId: string, weekFilter: WeekFilter = 'this') {
 	try {
 		// Get active tasks
 		const activeTasksResponse = await todoistApi.getTasks({ projectId, limit: 100 });
 		const activeTasks = activeTasksResponse.results;
 
-		const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-		const now = new Date().toISOString();
+		// Get week boundaries for filtering
+		const weekBoundaries = getWeekBoundaries(weekFilter);
 
 		const completedTasksResponse = await todoistApi.getCompletedTasksByCompletionDate({
 			projectId,
-			since: lastWeek,
-			until: now,
+			since: weekBoundaries.start.toISOString(),
+			until: weekBoundaries.end.toISOString(),
 			limit: 100
 		});
 
@@ -33,7 +70,8 @@ export async function getAllProjectTasks(projectId: string) {
 		return {
 			active: activeTasks,
 			completed: completedTasks,
-			all: allTasks
+			all: allTasks,
+			weekBoundaries
 		};
 	} catch (error) {
 		console.error('Error fetching Todoist tasks:', error);
