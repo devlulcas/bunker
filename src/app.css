@@ -166,6 +166,10 @@
 	--shadow-lg: var(--shadow-lg);
 	--shadow-xl: var(--shadow-xl);
 	--shadow-2xl: var(--shadow-2xl);
+
+	--color-brand-dark: var(--brand-dark);
+	--color-brand-light: var(--brand-light);
+	--color-brand-mid: var(--brand-400);
 }
 
 @utility text-balance {

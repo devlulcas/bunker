@@ -1,4 +1,5 @@
 import { TODOIST_PROJECT_URL } from '$env/static/private';
+import { requireGuest } from '$lib/server/auth/require-login';
 import {
 	extractProjectId,
 	filterOutPrivateLabels,
@@ -8,6 +9,8 @@ import {
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {
+	requireGuest();
+
 	try {
 		const projectId = extractProjectId(TODOIST_PROJECT_URL);
 

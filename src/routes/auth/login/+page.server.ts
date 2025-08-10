@@ -29,5 +29,9 @@ export const actions: Actions = {
 
 		const route = result.user.role === 'admin' ? '/dashboard' : '/guest';
 		return redirect(302, route);
+	},
+	logout: async (event) => {
+		auth.deleteSessionTokenCookie(event);
+		return redirect(302, '/auth/login');
 	}
 };
