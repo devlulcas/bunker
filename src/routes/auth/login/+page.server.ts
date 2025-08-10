@@ -1,4 +1,4 @@
-import * as auth from '$lib/server/auth';
+import * as auth from '$lib/server/auth/session';
 import { loginUser } from '$lib/server/auth/user-management';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';

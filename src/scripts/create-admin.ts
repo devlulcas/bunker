@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
+import { isOk, wrapAsync } from '$lib/helpers/result';
 import readline from 'readline';
-import { registerUser } from '../lib/server/auth/user-management';
+import { registerRootUser } from '../lib/server/auth/user-management';
 
 // Create readline interface for user input
 const rl = readline.createInterface({
@@ -44,15 +45,15 @@ async function main() {
 		console.log('\nCreating user...');
 
 		// Register the user
-		const result = await registerUser(username.trim(), password, 'admin');
+		const result = await wrapAsync(registerRootUser(username.trim(), password));
 
-		if (result.success) {
+		if (isOk(result)) {
 			console.log('✅ User created successfully!');
-			console.log(`User ID: ${result.user?.id}`);
-			console.log(`Username: ${result.user?.username}`);
+			console.log(`User ID: ${result.value.id}`);
+			console.log(`Username: ${result.value.username}`);
 		} else {
 			console.error('❌ Failed to create user:');
-			console.error(result.error);
+			console.error(result.fail);
 			process.exit(1);
 		}
 	} catch (error) {

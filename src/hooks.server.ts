@@ -1,12 +1,10 @@
-import * as auth from '$lib/server/auth';
-import * as guestLinks from '$lib/server/auth/guest-links';
+import * as auth from '$lib/server/auth/session';
+import * as guestLinks from '$lib/server/guest/guest-session';
 import type { Handle } from '@sveltejs/kit';
 
 const handleAuth: Handle = async ({ event, resolve }) => {
 	// First try to validate regular user session
-	const sessionToken = event.cookies.get(auth.sessionCookieName);
-	const guestToken = event.cookies.get(guestLinks.guestSessionCookieName);
-
+	const sessionToken = event.cookies.get(auth.SESSION_COOKIE_NAME);
 	if (sessionToken) {
 		const { session, user } = await auth.validateSessionToken(sessionToken);
 
@@ -21,27 +19,24 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	}
 
 	// If no valid user session, try guest session
+	const guestToken = event.cookies.get(guestLinks.GUEST_SESSION_COOKIE_NAME);
 	if (guestToken) {
 		const { guestSession, guestLink } = await guestLinks.validateGuestSessionToken(guestToken);
 
 		if (guestSession && guestLink) {
-			// Create a guest user object
-			event.locals.user = {
-				id: `guest_${guestSession.id}`,
-				username: guestLink.username,
-				role: 'guest' as const
-			};
-			event.locals.session = null; // No regular session for guests
+			event.locals.guestLink = guestLink;
+			event.locals.guestSession = guestSession;
 			return resolve(event);
 		} else {
-			// Clean up invalid guest session cookie
-			event.cookies.delete(guestLinks.guestSessionCookieName, { path: '/' });
+			event.cookies.delete(guestLinks.GUEST_SESSION_COOKIE_NAME, { path: '/' });
 		}
 	}
 
 	// No valid session found
 	event.locals.user = null;
 	event.locals.session = null;
+	event.locals.guestLink = null;
+	event.locals.guestSession = null;
 	return resolve(event);
 };
 

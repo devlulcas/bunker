@@ -1,13 +1,15 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
+export type User = typeof user.$inferSelect;
 export const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
 	age: integer('age'),
 	username: text('username').notNull().unique(),
 	passwordHash: text('password_hash').notNull(),
-	role: text('role').notNull().default('guest').$type<'admin' | 'guest'>()
+	role: text('role').$type<'admin'>()
 });
 
+export type Session = typeof session.$inferSelect;
 export const session = sqliteTable('session', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
@@ -16,6 +18,7 @@ export const session = sqliteTable('session', {
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
 });
 
+export type GuestLink = typeof guestLink.$inferSelect;
 export const guestLink = sqliteTable('guest_link', {
 	id: text('id').primaryKey(),
 	username: text('username').notNull(),
@@ -27,6 +30,7 @@ export const guestLink = sqliteTable('guest_link', {
 		.references(() => user.id)
 });
 
+export type GuestSession = typeof guestSession.$inferSelect;
 export const guestSession = sqliteTable('guest_session', {
 	id: text('id').primaryKey(),
 	guestLinkId: text('guest_link_id')
@@ -36,8 +40,3 @@ export const guestSession = sqliteTable('guest_session', {
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull().defaultNow()
 });
-
-export type Session = typeof session.$inferSelect;
-export type User = typeof user.$inferSelect;
-export type GuestLink = typeof guestLink.$inferSelect;
-export type GuestSession = typeof guestSession.$inferSelect;

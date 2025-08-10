@@ -1,5 +1,5 @@
 import { TODOIST_PROJECT_URL } from '$env/static/private';
-import { requireGuest } from '$lib/server/auth/require-login';
+import { requireGuest } from '$lib/server/auth/require-permission';
 import {
 	extractProjectId,
 	filterOutPrivateLabels,
@@ -8,7 +8,7 @@ import {
 } from '$lib/server/todoist';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async ({ url, locals }) => {
 	requireGuest();
 
 	try {
@@ -23,10 +23,14 @@ export const load: PageServerLoad = async ({ url }) => {
 
 		const unfilteredTasks = await getAllProjectTasks(projectId, weekFilter);
 
+		const skipFilter = Boolean(locals.user);
+
 		const tasks = {
-			all: filterOutPrivateLabels(unfilteredTasks.all),
-			active: filterOutPrivateLabels(unfilteredTasks.active),
-			completed: filterOutPrivateLabels(unfilteredTasks.completed)
+			all: skipFilter ? unfilteredTasks.all : filterOutPrivateLabels(unfilteredTasks.all),
+			active: skipFilter ? unfilteredTasks.active : filterOutPrivateLabels(unfilteredTasks.active),
+			completed: skipFilter
+				? unfilteredTasks.completed
+				: filterOutPrivateLabels(unfilteredTasks.completed)
 		};
 
 		return {

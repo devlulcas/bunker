@@ -1,31 +1,17 @@
 import { command, form, query } from '$app/server';
-import { createGuestLink, deleteGuestLink } from '$lib/server/auth/guest-links';
-import { requireAdmin } from '$lib/server/auth/require-login';
+import { requireAdmin } from '$lib/server/auth/require-permission';
+import {
+	createGuestLink,
+	deleteGuestLink,
+	getAllGuestLinks
+} from '$lib/server/guest/guest-management';
 import { error } from '@sveltejs/kit';
 import * as v from 'valibot';
 
 export const getGuestLinksAction = query(async () => {
 	try {
-		const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-		await sleep(2000);
-
-		const fakeLinks: {
-			id: string;
-			username: string;
-			allowedPages: string;
-			durationHours: number;
-			createdAt: Date;
-			createdBy: string;
-		}[] = Array.from({ length: 10 }, (_, i) => ({
-			id: `guest-${i + 1}`,
-			username: `guest${i + 1}`,
-			allowedPages: '["/dashboard/guest/todoist"]',
-			durationHours: 1,
-			createdAt: new Date(),
-			createdBy: 'admin'
-		}));
-		// const links = await getAllGuestLinks();
-		return { links: fakeLinks };
+		const links = await getAllGuestLinks();
+		return { links };
 	} catch (error) {
 		console.error('Failed to get guest links:', error);
 		return { error: 'Failed to get guest links' };
@@ -38,10 +24,6 @@ export const createGuestLinkAction = form(async (data) => {
 	const username = data.get('username');
 	const allowedPages = data.getAll('allowedPages');
 	const durationHours = data.get('durationHours');
-
-	if (!username || !allowedPages || !durationHours) {
-		error(400, 'Campos obrigatórios não preenchidos');
-	}
 
 	if (typeof username !== 'string') {
 		error(400, 'O nome de usuário deve ser uma string');
@@ -60,12 +42,14 @@ export const createGuestLinkAction = form(async (data) => {
 	}
 
 	try {
-		const guestLink = await createGuestLink({
-			username,
-			allowedPages: allowedPages as string[],
-			durationHours,
-			createdBy: admin.id
-		});
+		const guestLink = await createGuestLink(
+			{
+				username,
+				allowedPages: allowedPages as string[],
+				durationHours
+			},
+			admin
+		);
 
 		await getGuestLinksAction().refresh();
 

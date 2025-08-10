@@ -29,7 +29,7 @@ export const GET = async ({ params, cookies }) => {
 		const { guestSession } = await guestLinks.createGuestSession(params.id);
 
 		// Set the guest session cookie
-		cookies.set(guestLinks.guestSessionCookieName, guestSession.token, {
+		cookies.set(guestLinks.GUEST_SESSION_COOKIE_NAME, guestSession.token, {
 			expires: guestSession.expiresAt,
 			path: '/',
 			httpOnly: true,

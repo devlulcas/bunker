@@ -16,7 +16,8 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
-		"create-admin": "tsx src/scripts/create-admin.ts"
+		"create-admin": "tsx src/scripts/create-admin.ts",
+		"create-jwt-key": "tsx src/scripts/create-jwt-key.ts"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -53,6 +54,7 @@
 		"@node-rs/argon2": "^2.0.2",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
+		"@oslojs/jwt": "^0.3.0",
 		"d3-sankey": "^0.12.3",
 		"d3-scale": "^4.0.2",
 		"drizzle-orm": "^0.40.0",

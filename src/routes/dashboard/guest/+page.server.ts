@@ -1,4 +1,4 @@
-import { requireGuest } from '$lib/server/auth/require-login';
+import { requireGuest } from '$lib/server/auth/require-permission';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {

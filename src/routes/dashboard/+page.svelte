@@ -10,14 +10,6 @@
 	import IconLoader from '@lucide/svelte/icons/loader';
 
 	const availablePages = ['/dashboard/guest/todoist'];
-
-	function generateGuestLinkUrl(id: string) {
-		return `${window.location.origin}/guest/${id}`;
-	}
-
-	function copyToClipboard(text: string) {
-		navigator.clipboard.writeText(text);
-	}
 </script>
 
 <div class="container mx-auto max-w-6xl p-6">
