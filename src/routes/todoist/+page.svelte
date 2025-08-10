@@ -1,5 +1,6 @@
 <script lang="ts">
 	import TaskItem from '$lib/components/task-item.svelte';
+	import TaskSankeyChart from '$lib/components/task-sankey-chart.svelte';
 	import IconSkull from '@lucide/svelte/icons/skull';
 
 	const { data } = $props();
@@ -33,13 +34,9 @@
 					Tasks ({data.tasks.all.length})
 				</h2>
 				{#if data.tasks.all.length > 0}
-					<ul
-						class="task-list"
-						style:--numcards={data.tasks.all.length}
-						style:view-timeline-name="--cards-element-scrolls-in-body"
-					>
+					<ul class="flex flex-col gap-4">
 						{#each data.tasks.all as task, index}
-							<li class="task-item" style:--index={index}>
+							<li>
 								<TaskItem {task} />
 							</li>
 						{/each}
@@ -50,23 +47,7 @@
 			</section>
 
 			<!-- Summary -->
-			<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
-				<h3 class="mb-2 text-sm font-medium text-blue-800">Resumo</h3>
-				<div class="grid grid-cols-3 gap-4 text-sm">
-					<div class="text-center">
-						<div class="text-2xl font-bold text-blue-600">{data.tasks.all.length}</div>
-						<div class="text-blue-700">Total de tarefas</div>
-					</div>
-					<div class="text-center">
-						<div class="text-2xl font-bold text-green-600">{data.tasks.active.length}</div>
-						<div class="text-green-700">Ativas</div>
-					</div>
-					<div class="text-center">
-						<div class="text-2xl font-bold text-gray-600">{data.tasks.completed.length}</div>
-						<div class="text-gray-700">Completadas</div>
-					</div>
-				</div>
-			</div>
+			<TaskSankeyChart tasks={data.tasks.all} />
 		</div>
 	{:else}
 		<div class="py-12 text-center">
@@ -74,46 +55,3 @@
 		</div>
 	{/if}
 </div>
-
-<style lang="postcss">
-	@supports (animation-timeline: view()) {
-		@keyframes scale {
-			to {
-				transform: scale(calc(1.1 - calc(0.1 * var(--reverse-index))));
-			}
-		}
-
-		.task-list {
-			--card-height: 100px;
-			--card-margin: 1rem;
-			--card-top-offset: 1em;
-			padding-bottom: calc(var(--numcards) * var(--card-top-offset));
-			margin-bottom: var(--card-margin);
-			list-style: none;
-			display: grid;
-			grid-template-columns: 1fr;
-			grid-template-rows: repeat(var(--numcards), var(--card-height));
-			gap: var(--card-margin);
-			view-timeline-name: --cards-element-scrolls-in-body;
-		}
-
-		.task-item {
-			position: sticky;
-			top: 0;
-			padding-top: calc(var(--index) * var(--card-top-offset));
-			--index0: calc(var(--index) - 1);
-			--reverse-index: calc(var(--numcards) - var(--index0));
-			--reverse-index0: calc(var(--reverse-index) - 1);
-		}
-
-		:global(.task-item-content) {
-			transform-origin: 50% 0%;
-			will-change: transform;
-			--start-range: calc(var(--index0) / var(--numcards) * 100%);
-			--end-range: calc((var(--index)) / var(--numcards) * 100%);
-			animation: linear scale forwards;
-			animation-timeline: --cards-element-scrolls-in-body;
-			animation-range: exit-crossing var(--start-range) exit-crossing var(--end-range);
-		}
-	}
-</style>

@@ -25,7 +25,7 @@
 </script>
 
 <article
-	class="task-item-content flex h-full items-start justify-between rounded-lg border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
+	class="flex h-full items-start justify-between rounded-lg border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
 >
 	<div class="flex-1">
 		<h3 class="mb-1 font-medium text-foreground" class:line-through={!!task.completedAt}>
