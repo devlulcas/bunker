@@ -16,8 +16,8 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
-		"create-admin": "tsx src/scripts/create-admin.ts",
-		"create-jwt-key": "tsx src/scripts/create-jwt-key.ts"
+		"create-admin": "tsx scripts/create-admin.ts",
+		"create-jwt-key": "tsx scripts/create-jwt-key.ts"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -57,6 +57,7 @@
 		"@oslojs/jwt": "^0.3.0",
 		"d3-sankey": "^0.12.3",
 		"d3-scale": "^4.0.2",
+		"dotenv": "^17.2.1",
 		"drizzle-orm": "^0.40.0",
 		"valibot": "^1.1.0"
 	},

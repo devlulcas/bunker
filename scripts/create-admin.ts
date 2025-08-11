@@ -1,8 +1,13 @@
 #!/usr/bin/env node
-
-import { isOk, wrapAsync } from '$lib/helpers/result';
+import { hash } from '@node-rs/argon2';
+import { eq } from 'drizzle-orm';
 import readline from 'readline';
-import { registerRootUser } from '../lib/server/auth/user-management';
+import * as v from 'valibot';
+import { generateUserId } from '../src/lib/helpers/crypto';
+import { isOk, wrapAsync } from '../src/lib/helpers/result';
+import * as table from '../src/lib/server/db/schema';
+import { CreateUser } from '../src/lib/server/user/types';
+import { dbForScripts } from './db';
 
 // Create readline interface for user input
 const rl = readline.createInterface({
@@ -15,6 +20,50 @@ function question(prompt: string): Promise<string> {
 	return new Promise((resolve) => {
 		rl.question(prompt, resolve);
 	});
+}
+
+export async function registerRootUser(username: unknown, password: unknown) {
+	try {
+		const parsed = v.safeParse(CreateUser, { username, password });
+
+		if (!parsed.success) {
+			const issues = v.flatten(parsed.issues);
+			console.error('Failed to parse user data', issues);
+			process.exit(1);
+		}
+
+		const existingUser = await dbForScripts
+			.select()
+			.from(table.user)
+			.where(eq(table.user.username, parsed.output.username));
+
+		if (existingUser.length > 0) {
+			console.error('Username already exists');
+			process.exit(1);
+		}
+
+		const userId = generateUserId();
+		const passwordHash = await hash(parsed.output.password, {
+			memoryCost: 19456,
+			timeCost: 2,
+			outputLen: 32,
+			parallelism: 1
+		});
+
+		const role = 'admin';
+
+		await dbForScripts.insert(table.user).values({
+			id: userId,
+			username: parsed.output.username,
+			passwordHash,
+			role
+		});
+
+		return { id: userId, username: parsed.output.username, role };
+	} catch (err) {
+		console.error('An error occurred while registering the user', err);
+		process.exit(1);
+	}
 }
 
 async function main() {

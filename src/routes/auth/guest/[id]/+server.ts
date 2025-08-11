@@ -1,4 +1,5 @@
-import * as guestLinks from '$lib/server/auth/guest-links';
+import { getGuestLink } from '$lib/server/guest/guest-management.js';
+import { GUEST_SESSION_COOKIE_NAME, createGuestSession } from '$lib/server/guest/guest-session.js';
 import { error, redirect } from '@sveltejs/kit';
 
 export const GET = async ({ params, cookies }) => {
@@ -8,7 +9,7 @@ export const GET = async ({ params, cookies }) => {
 		});
 	}
 
-	const guestLink = await guestLinks.getGuestLink(params.id);
+	const guestLink = await getGuestLink(params.id);
 	if (!guestLink) {
 		return error(400, {
 			message: 'Seu link de acesso é inválido'
@@ -26,10 +27,10 @@ export const GET = async ({ params, cookies }) => {
 	}
 
 	try {
-		const { guestSession } = await guestLinks.createGuestSession(params.id);
+		const { guestSession } = await createGuestSession(params.id);
 
 		// Set the guest session cookie
-		cookies.set(guestLinks.GUEST_SESSION_COOKIE_NAME, guestSession.token, {
+		cookies.set(GUEST_SESSION_COOKIE_NAME, guestSession.token, {
 			expires: guestSession.expiresAt,
 			path: '/',
 			httpOnly: true,

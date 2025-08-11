@@ -22,8 +22,10 @@ export const createGuestLinkAction = form(async (data) => {
 	const admin = requireAdmin();
 
 	const username = data.get('username');
-	const allowedPages = data.getAll('allowedPages');
-	const durationHours = data.get('durationHours');
+	const allowedPages = data.getAll('pages');
+	const durationHours = Number(data.get('duration'));
+
+	console.log(username, allowedPages, durationHours);
 
 	if (typeof username !== 'string') {
 		error(400, 'O nome de usuário deve ser uma string');

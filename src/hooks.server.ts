@@ -1,6 +1,7 @@
 import * as auth from '$lib/server/auth/session';
 import * as guestLinks from '$lib/server/guest/guest-session';
 import type { Handle } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
 
 const handleAuth: Handle = async ({ event, resolve }) => {
 	// First try to validate regular user session
@@ -40,4 +41,4 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle: Handle = handleAuth;
+export const handle: Handle = sequence(handleAuth);
