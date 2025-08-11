@@ -8,8 +8,6 @@ import type { CreateGuestLink } from './validation';
 type JWTPayload = v.InferOutput<typeof JWTPayload>;
 const JWTPayload = v.object({
 	username: v.string(),
-	allowedPages: v.array(v.string()),
-	durationHours: v.number(),
 	createdBy: v.string()
 });
 
@@ -23,13 +21,11 @@ const JWT_HEADER = {
 };
 
 export async function createGuestLinkId(
-	data: CreateGuestLink,
+	data: Pick<CreateGuestLink, 'username' | 'durationHours'>,
 	createdBy: PublicUser
 ): Promise<string> {
 	const payload: JWTPayload = {
 		username: data.username,
-		allowedPages: data.allowedPages,
-		durationHours: data.durationHours,
 		createdBy: createdBy.id
 	};
 
